@@ -1,7 +1,8 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import scrolledtext, messagebox
 import numpy as np
 import csv
+from PIL import Image, ImageTk
 
 def read_frequencies(filename):
     bigram_strings = []
@@ -19,83 +20,50 @@ def read_frequencies(filename):
 
     return bigram_strings, trigram_strings, bigram_frequencies, trigram_frequencies
 
-english_bigram_strings, english_trigram_strings, frequency_eng_bigram, frequency_eng_trigram = read_frequencies('./csv/english.csv')
-german_bigram_strings, german_trigram_strings, frequency_germ_bigram, frequency_germ_trigram = read_frequencies('./csv/german.csv')
-french_bigram_strings, french_trigram_strings, frequency_french_bigram, frequency_french_trigram = read_frequencies('./csv/french.csv')
-spanish_bigram_strings, spanish_trigram_strings, frequency_spanish_bigram, frequency_spanish_trigram = read_frequencies('./csv/spanish.csv')
-portuguese_bigram_strings, portuguese_trigram_strings, frequency_portuguese_bigram, frequency_portuguese_trigram = read_frequencies('./csv/portuguese.csv')
-italian_bigram_strings, italian_trigram_strings, frequency_italian_bigram, frequency_italian_trigram = read_frequencies('./csv/italian.csv')
-turkish_bigram_strings, turkish_trigram_strings, frequency_turkish_bigram, frequency_turkish_trigram = read_frequencies('./csv/turkish.csv')
+def load_language_data(language):
+    bigram_strings, trigram_strings, frequency_bigram, frequency_trigram = read_frequencies(f'./csv/{language.lower()}.csv')
+    return bigram_strings, trigram_strings, frequency_bigram, frequency_trigram
 
-matrix_bigram_strings = {
-    "ENGLISH": english_bigram_strings,
-    "GERMAN": german_bigram_strings,
-    "FRENCH": french_bigram_strings,
-    "SPANISH": spanish_bigram_strings,
-    "PORTUGUESE": portuguese_bigram_strings,
-    "ITALIAN": italian_bigram_strings,
-    "TURKISH": turkish_bigram_strings
-}
+languages = ["english", "german", "french", "spanish", "portuguese", "italian", "turkish"]
+language_data = {}
 
-matrix_trigram_strings = {
-    "ENGLISH": english_trigram_strings,
-    "GERMAN": german_trigram_strings,
-    "FRENCH": french_trigram_strings,
-    "SPANISH": spanish_trigram_strings,
-    "PORTUGUESE": portuguese_trigram_strings,
-    "ITALIAN": italian_trigram_strings,
-    "TURKISH": turkish_trigram_strings
-}
+for language in languages:
+    bigram_strings, trigram_strings, frequency_bigram, frequency_trigram = load_language_data(language)
+    language_data[language.upper()] = {
+        "BIGRAM_STRINGS": bigram_strings,
+        "TRIGRAM_STRINGS": trigram_strings,
+        "FREQUENCY_BIGRAM": frequency_bigram,
+        "FREQUENCY_TRIGRAM": frequency_trigram
+    }
 
-frequency_eng = frequency_eng_bigram + frequency_eng_trigram
-frequency_germ = frequency_germ_bigram + frequency_germ_trigram
-frequency_french = frequency_french_bigram + frequency_french_trigram
-frequency_spanish = frequency_spanish_bigram + frequency_spanish_trigram
-frequency_portuguese = frequency_portuguese_bigram + frequency_portuguese_trigram
-frequency_italian = frequency_italian_bigram + frequency_italian_trigram
-frequency_turkish = frequency_turkish_bigram + frequency_turkish_trigram
-
-def filter_str(string):
-    filtered_str = ''.join([char.upper() if char.isalpha() else ' ' for char in string])
-    return filtered_str
+frequency_eng = language_data["ENGLISH"]["FREQUENCY_BIGRAM"] + language_data["ENGLISH"]["FREQUENCY_TRIGRAM"]
+frequency_germ = language_data["GERMAN"]["FREQUENCY_BIGRAM"] + language_data["GERMAN"]["FREQUENCY_TRIGRAM"]
+frequency_french = language_data["FRENCH"]["FREQUENCY_BIGRAM"] + language_data["FRENCH"]["FREQUENCY_TRIGRAM"]
+frequency_spanish = language_data["SPANISH"]["FREQUENCY_BIGRAM"] + language_data["SPANISH"]["FREQUENCY_TRIGRAM"]
+frequency_portuguese = language_data["PORTUGUESE"]["FREQUENCY_BIGRAM"] + language_data["PORTUGUESE"]["FREQUENCY_TRIGRAM"]
+frequency_italian = language_data["ITALIAN"]["FREQUENCY_BIGRAM"] + language_data["ITALIAN"]["FREQUENCY_TRIGRAM"]
+frequency_turkish = language_data["TURKISH"]["FREQUENCY_BIGRAM"] + language_data["TURKISH"]["FREQUENCY_TRIGRAM"]
 
 def calculate_frequencies_bi(string, language):
-    frequencies = [0] * len(matrix_bigram_strings[language])
+    frequencies = [0] * len(language_data[language]["BIGRAM_STRINGS"])
     for i in range(len(string) - 1):
         bigram = string[i:i+2]
-        if bigram in matrix_bigram_strings[language]:
-            index = matrix_bigram_strings[language].index(bigram)
+        if bigram in language_data[language]["BIGRAM_STRINGS"]:
+            index = language_data[language]["BIGRAM_STRINGS"].index(bigram)
             frequencies[index] += 1
     return frequencies
 
 def calculate_frequencies_tri(string, language):
-    frequencies = [0] * len(matrix_trigram_strings[language])
+    frequencies = [0] * len(language_data[language]["TRIGRAM_STRINGS"])
     for i in range(len(string) - 2):
         trigram = string[i:i+3]
-        if trigram in matrix_trigram_strings[language]:
-            index = matrix_trigram_strings[language].index(trigram)
+        if trigram in language_data[language]["TRIGRAM_STRINGS"]:
+            index = language_data[language]["TRIGRAM_STRINGS"].index(trigram)
             frequencies[index] += 1
     return frequencies
 
 def calculate_distances(frequencies, language):
-    if language == "ENGLISH":
-        frequency_ref = frequency_eng
-    elif language == "GERMAN":
-        frequency_ref = frequency_germ
-    elif language == "FRENCH":
-        frequency_ref = frequency_french
-    elif language == "SPANISH":
-        frequency_ref = frequency_spanish
-    elif language == "PORTUGUESE":
-        frequency_ref = frequency_portuguese
-    elif language == "ITALIAN":
-        frequency_ref = frequency_italian
-    elif language == "TURKISH":
-        frequency_ref = frequency_turkish
-    else:
-        print("Language not supported!")
-        return
-
+    frequency_ref = language_data[language]["FREQUENCY_BIGRAM"] + language_data[language]["FREQUENCY_TRIGRAM"]
     distance = np.dot(frequency_ref, frequencies)
     return distance
 
@@ -104,34 +72,87 @@ def detect_lang(distances):
     language = [lang for lang, dist in distances.items() if dist == max_distance][0]
     return language
 
-def analyze_text():
-    text = text_entry.get("1.0", "end-1c")
-    filtered_text = filter_str(text)
+def display_language_image(language):
+    if language.upper() in language_data:
+        image_path = f"img/{language.lower()}.png"
+        image = Image.open(image_path)
+        image = ImageTk.PhotoImage(image)
+        flag_label.configure(image=image)
+        flag_label.image = image
 
+def run_language_detection():
+    text = text_box.get("1.0",'end-1c').strip()
+    if not text:
+        messagebox.showwarning("Warning", "Please enter any text.")
+        return
+
+    filtered_text = filter_str(text)
     distances = {}
 
-    for language in ["ENGLISH", "GERMAN", "FRENCH", "SPANISH", "PORTUGUESE", "ITALIAN", "TURKISH"]:
-        bi_frequencies = calculate_frequencies_bi(filtered_text, language)
-        tri_frequencies = calculate_frequencies_tri(filtered_text, language)
+    for language in languages:
+        bi_frequencies = calculate_frequencies_bi(filtered_text, language.upper())
+        tri_frequencies = calculate_frequencies_tri(filtered_text, language.upper())
         combined_frequencies = bi_frequencies + tri_frequencies
-        distance = calculate_distances(combined_frequencies, language)
-        distances[language] = distance
+        distance = calculate_distances(combined_frequencies, language.upper())
+        distances[language.upper()] = distance
+
+    result_text = "DISTANCES FOR EACH LANGUAGE:\n\n"
+    for language, distance in distances.items():
+        result_text += f"{language} : {distance:.3f}\n"
 
     detected_language = detect_lang(distances)
 
-    messagebox.showinfo("Result", f"The detected language is: {detected_language}")
+    result_text += f"\nLANGUAGE: {detected_language}\n\n"
+    result_box.delete('1.0', tk.END)
+    result_box.insert(tk.END, result_text)
+    display_language_image(detected_language)
 
-# Create the main window
-root = tk.Tk()
-root.title("Language Detection")
+def filter_str(string):
+    filtered_str = ''.join([char.upper() if char.isalpha() else ' ' for char in string])
+    return filtered_str
 
-# Create a text entry box
-text_entry = tk.Text(root, height=10, width=50)
-text_entry.pack(pady=10)
+def reset_text():
+    text_box.delete('1.0', tk.END)
+    result_box.delete('1.0', tk.END)
+    flag_label.configure(image='')
 
-# Create a button to analyze the text
-analyze_button = tk.Button(root, text="Analyze Text", command=analyze_text)
-analyze_button.pack()
+def create_gui():
+    window = tk.Tk()
+    window.title("Language Detection")
 
-# Run the main event loop
-root.mainloop()
+    window_width = 1050
+    window_height = 520
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    x = (screen_width - window_width) // 2
+    y = (screen_height - window_height) // 2
+    window.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+    text_label = tk.Label(window, text="Enter Text:")
+    text_label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+
+    global text_box
+    text_box = scrolledtext.ScrolledText(window, wrap=tk.WORD, width=45, height=20)
+    text_box.grid(row=1, column=0, padx=10, pady=5, sticky="w")
+
+    run_button = tk.Button(window, text="RUN", command=run_language_detection)
+    run_button.grid(row=2, column=0, padx=200, pady=10, sticky="w")
+
+    result_label = tk.Label(window, text="Result:")
+    result_label.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+
+    global result_box
+    result_box = tk.Text(window, wrap=tk.WORD, width=35, height=15, highlightthickness=0, borderwidth=0)
+    result_box.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+    result_box.configure(bg=window.cget('bg'))
+
+    reset_button = tk.Button(window, text="RESET", command=reset_text)
+    reset_button.grid(row=2, column=1, padx=10, pady=5, sticky="e")
+
+    global flag_label
+    flag_label = tk.Label(window)
+    flag_label.grid(row=0, column=2, rowspan=2, padx=5, pady=5, sticky="e")
+
+    window.mainloop()
+
+create_gui()
