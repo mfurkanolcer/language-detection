@@ -23,11 +23,11 @@ def read_frequencies(filename):
 
 # Her dil için frekans verilerini yükleyen fonksiyon
 def load_language_data(language):
-    bigram_strings, trigram_strings, frequency_bigram, frequency_trigram = read_frequencies(f'./csv/{language.lower()}.csv')
+    bigram_strings, trigram_strings, frequency_bigram, frequency_trigram = read_frequencies(f'./data/{language.lower()}.csv')
     return bigram_strings, trigram_strings, frequency_bigram, frequency_trigram
 
 # Desteklenen diller ve dil verilerini depolayan sözlük
-languages = ["english", "german", "french", "spanish", "portuguese", "italian", "turkish"]
+languages = ["english", "german", "french", "spanish", "portuguese", "italian"]
 language_data = {}
 
 # Dil verilerini yükleyerek language_data sözlüğüne ekleyen döngü
