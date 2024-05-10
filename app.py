@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import scrolledtext, messagebox
+from csv import DictReader
 import numpy as np
-import csv
 from PIL import Image, ImageTk
 
 def read_frequencies(filename):
@@ -13,7 +13,7 @@ def read_frequencies(filename):
     quadgram_frequencies = []
 
     with open(filename, newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
+        reader = DictReader(csvfile)
         for row in reader:
             bigram_strings.append(row['Bigram'])
             trigram_strings.append(row['Trigram'])
@@ -25,31 +25,8 @@ def read_frequencies(filename):
     return bigram_strings, trigram_strings, quadgram_strings, bigram_frequencies, trigram_frequencies, quadgram_frequencies
 
 def load_language_data(language):
-    bigram_strings, trigram_strings, quadgram_strings, frequency_bigram, frequency_trigram, frequency_quadgram = read_frequencies(f'./data/{language.lower()}.csv')
-    return bigram_strings, trigram_strings, quadgram_strings, frequency_bigram, frequency_trigram, frequency_quadgram
+    return read_frequencies(f'./data/{language.lower()}.csv')
 
-languages = ["english", "german", "french", "spanish", "portuguese", "italian"]
-language_data = {}
-
-for language in languages:
-    bigram_strings, trigram_strings, quadgram_strings, frequency_bigram, frequency_trigram, frequency_quadgram = load_language_data(language)
-    language_data[language.upper()] = {
-        "BIGRAM_STRINGS": bigram_strings,
-        "TRIGRAM_STRINGS": trigram_strings,
-        "QUADGRAM_STRINGS": quadgram_strings,
-        "FREQUENCY_BIGRAM": frequency_bigram,
-        "FREQUENCY_TRIGRAM": frequency_trigram,
-        "FREQUENCY_QUADGRAM": frequency_quadgram
-    }
-
-languages_lower = [lang.lower() for lang in languages]
-
-for language in languages_lower:
-    frequency_bigram = language_data[language.upper()]["FREQUENCY_BIGRAM"]
-    frequency_trigram = language_data[language.upper()]["FREQUENCY_TRIGRAM"]
-    frequency_quadgram = language_data[language.upper()]["FREQUENCY_QUADGRAM"]
-    frequency_total = frequency_bigram + frequency_trigram + frequency_quadgram
-    globals()[f"frequency_{language}"] = frequency_total
 
 def calculate_frequencies_bi(string, language):
     frequencies = [0] * len(language_data[language]["BIGRAM_STRINGS"])
@@ -85,8 +62,9 @@ def calculate_distances(frequencies, language):
 
 def detect_lang(distances):
     max_distance = max(distances.values())
-    language = [lang for lang, dist in distances.items() if dist == max_distance][0]
-    return language
+    for lang, dist in distances.items():
+        if dist == max_distance:
+            return lang
 
 def display_language_image(language):
     if language.upper() in language_data:
@@ -95,6 +73,15 @@ def display_language_image(language):
         image = ImageTk.PhotoImage(image)
         flag_label.configure(image=image)
         flag_label.image = image
+
+def filter_str(string):
+    filtered_str = ''.join([char.upper() if char.isalpha() else ' ' for char in string])
+    return filtered_str
+
+def reset_text():
+    text_box.delete('1.0', tk.END)
+    result_box.delete('1.0', tk.END)
+    flag_label.configure(image='')
 
 def run_language_detection():
     text = text_box.get("1.0",'end-1c').strip()
@@ -112,6 +99,8 @@ def run_language_detection():
         combined_frequencies = bi_frequencies + tri_frequencies + quad_frequencies
         distance = calculate_distances(combined_frequencies, language.upper())
         distances[language.upper()] = distance
+        print(combined_frequencies)
+        print(distance)
 
         print(f"\nLanguage: {language.upper()}")
         print(f"Bigram Frequencies:")
@@ -142,14 +131,6 @@ def run_language_detection():
     result_box.insert(tk.END, result_text)
     display_language_image(detected_language)
 
-def filter_str(string):
-    filtered_str = ''.join([char.upper() if char.isalpha() else ' ' for char in string])
-    return filtered_str
-
-def reset_text():
-    text_box.delete('1.0', tk.END)
-    result_box.delete('1.0', tk.END)
-    flag_label.configure(image='')
 
 def create_gui():
     window = tk.Tk()
@@ -190,4 +171,27 @@ def create_gui():
 
     window.mainloop()
 
-create_gui()
+if __name__ == '__main__':
+
+    languages = ["english", "german", "french", "spanish", "portuguese", "italian"]
+    language_data = {}
+
+    for language in languages:
+        bigram_strings, trigram_strings, quadgram_strings, frequency_bigram, frequency_trigram, frequency_quadgram = load_language_data(language)
+        language_data[language.upper()] = {
+            "BIGRAM_STRINGS": bigram_strings,
+            "TRIGRAM_STRINGS": trigram_strings,
+            "QUADGRAM_STRINGS": quadgram_strings,
+            "FREQUENCY_BIGRAM": frequency_bigram,
+            "FREQUENCY_TRIGRAM": frequency_trigram,
+            "FREQUENCY_QUADGRAM": frequency_quadgram
+        }
+
+    for language in languages:
+        frequency_bigram = language_data[language.upper()]["FREQUENCY_BIGRAM"]
+        frequency_trigram = language_data[language.upper()]["FREQUENCY_TRIGRAM"]
+        frequency_quadgram = language_data[language.upper()]["FREQUENCY_QUADGRAM"]
+        frequency_total = frequency_bigram + frequency_trigram + frequency_quadgram
+        globals()[f"frequency_{language}"] = frequency_total
+
+    create_gui()
