@@ -54,11 +54,11 @@ python app.py
  
 ## 🖼️ GUI Genel Bakış
 
--     Metin Girişi: Dilini tespit etmek istediğiniz metni girin.
--     Çalıştır Butonu: Dil tespit algoritmasını çalıştırmak için tıklayın.
--     Sonuç Kutusu: Tespit sonuçlarını gösterir.
--     Sıfırla Butonu: Giriş ve sonuç alanlarını temizler.
--     Dil Bayrağı: Tespit edilen dilin bayrağını gösterir.
+- **Metin Girişi:** Dilini tespit etmek istediğiniz metni girin.
+- **Çalıştır Butonu:** Dil tespit algoritmasını çalıştırmak için tıklayın.
+- **Sonuç Kutusu:** Tespit sonuçlarını gösterir.
+- **Sıfırla Butonu:** Giriş ve sonuç alanlarını temizler.
+- **Dil Bayrağı:** Tespit edilen dilin bayrağını gösterir.
 
 ## 📸 Ekran Görüntüleri
 ### Ana Pencere
