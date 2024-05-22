@@ -1,26 +1,32 @@
-# 🌐 Language Detection
+# 🌐 Dil Tespiti
 
-This is a simple language detection application that identifies the language of the input text based on bigram, trigram, and quadgram frequencies. The project uses Tkinter for the GUI and CSV files containing n-gram frequencies for different languages.
+Bu, girdiğiniz metnin dilini bigram, trigram ve dörtgram frekanslarına göre belirleyen basit bir dil tespiti uygulamasıdır. Proje, GUI için Tkinter ve farklı diller için n-gram frekanslarını içeren CSV dosyalarını kullanır.
 
-## ✨ Features
-- Detects the language of the input text.
-- Supports English, German, French, Spanish, Portuguese, and Italian.
-- Displays the flag of the detected language.
+## ✨ Özellikler
+- Girdiğiniz metnin dilini tespit eder.
+- İngilizce, Almanca, Fransızca, İspanyolca, Portekizce ve İtalyanca dillerini destekler.
+- Tespit edilen dilin bayrağını gösterir.
 
-## 📦 Installation
+## 🎥 Video Tanıtımı
 
-1. Clone the repository:
+Proje de kullanılan yöntemin ve uygulamanın nasıl çalıştığını gösteren bir videoyu aşağıdaki bağlantıdan izleyebilirsiniz:
+
+[Proje Tanıtım Videosu](https://www.youtube.com/watch?v=XzPeBvLuVzA)
+
+## 📦 Kurulum
+
+1. Depoyu klonlayın:
     ```sh
     git clone https://github.com/mfurkanolcer/language-detection.git
     cd language-detection
     ```
 
-2. Install the required Python packages:
+2. Gerekli Python paketlerini yükleyin:
     ```sh
     pip install -r requirements.txt
     ```
 
-3. Ensure the required CSV files and images are in the correct directories:
+3. Gerekli CSV dosyalarının ve resimlerin doğru dizinlerde olduğundan emin olun:
     ```
     language_detection/
     ├── data/
@@ -39,38 +45,38 @@ This is a simple language detection application that identifies the language of 
     │   └── italian.png
     ```
 
-## 🚀 Usage
+## 🚀 Kullanım
 
-Run the application:
+Uygulamayı çalıştırın:
 ```sh
 python app.py
- ```
+```
  
-## 🖼️ GUI Overview
+## 🖼️ GUI Genel Bakış
 
-1. **Text Input:** Enter the text you want to detect the language of.
-2.  **Run Button:** Click to run the language detection algorithm.
-3.  **Result Box:** Displays the detection results.
-4.  **Reset Button:** Clears the input and result fields.
-5.  **Language Flag:** Displays the flag of the detected language.
+-     Metin Girişi: Dilini tespit etmek istediğiniz metni girin.
+-     Çalıştır Butonu: Dil tespit algoritmasını çalıştırmak için tıklayın.
+-     Sonuç Kutusu: Tespit sonuçlarını gösterir.
+-     Sıfırla Butonu: Giriş ve sonuç alanlarını temizler.
+-     Dil Bayrağı: Tespit edilen dilin bayrağını gösterir.
 
-## 📸 Screenshots
-### Main Window
+## 📸 Ekran Görüntüleri
+### Ana Pencere
 ![Screenshot_1](https://github.com/mfurkanolcer/nlp-project/assets/58481075/597d7430-1e8a-4680-8bfe-c9ff7c4381da)
 
-### Detection Result
+### Tespit Sonucu
 ![Screenshot_2](https://github.com/mfurkanolcer/nlp-project/assets/58481075/d6b80f05-adda-4534-b649-196f02b5cb51)
 
-## 🛠️ How It Works
+## 🛠️ Nasıl Çalışır
 
-1. **Reading Frequencies:** The application reads n-gram frequencies from CSV files.
-2.  **Calculating Frequencies:** It calculates the frequencies of n-grams in the input text.
-3.  **Calculating Distances:** It compares these frequencies with the reference frequencies from the CSV files.
-4.  **Detecting Language:** The language with the highest similarity is detected and displayed.
+1. **Frekansları Okuma:** Uygulama, n-gram frekanslarını CSV dosyalarından okur.
+2. **Frekansları Hesaplama:** Girdi metindeki n-gramların frekanslarını hesaplar.
+3. **Mesafeleri Hesaplama:** Bu frekansları CSV dosyalarındaki referans frekanslarla karşılaştırır.
+4. **Dili Tespit Etme:** En yüksek benzerliğe sahip dili tespit eder ve gösterir.
 
-## 📊 Data Structure
+## 📊 Veri Yapısı
 
-The data structure used for storing the n-gram frequencies:
+N-gram frekanslarını depolamak için kullanılan veri yapısı:
 
 ```python
 language_data = {
